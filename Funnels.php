@@ -32,9 +32,31 @@ class Piwik_Funnels extends Piwik_Plugin
 			'author' => 'mySociety',
 			'author_homepage' => 'http://mysociety.org/',
 			'version' => '0.1',
+			'homepage' => 'http://github.com/mysociety/funnels',
 			'translationAvailable' => true,
 			'TrackerPlugin' => true, // this plugin must be loaded during the stats logging
 		);
+	}
+	
+	function getListHooksRegistered()
+	{
+		$hooks = array(
+			'Menu.add' => 'addMenus',
+		);
+		return $hooks;
+	}
+	
+	function addMenus()
+	{
+		$idSite = Piwik_Common::getRequestVar('idSite');
+	 	$funnels = Piwik_Funnels_API::getInstance()->getFunnels($idSite);
+		$goalsWithoutFunnels = Piwik_Funnels_API::getInstance()->getGoalsWithoutFunnels($idSite);
+		if(count($funnels) == 0 && count($goalsWithoutFunnels) > 0)
+		{	
+			Piwik_AddMenu('Funnels', 'Add a new Funnel', array('module' => 'Funnels', 'action' => 'addNewFunnel'));
+		} else {
+			Piwik_AddMenu('Funnels_Funnels', 'Funnels_Overview', array('module' => 'Funnels'));	
+		}
 	}
 	
 	/**
@@ -42,23 +64,46 @@ class Piwik_Funnels extends Piwik_Plugin
 	 */
 	public function install()
 	{
-	
-	  $funnels_table_spec = '	`idsite` int(11) NOT NULL,
-			                      `idgoal` int(11) NOT NULL,
-			                      `idfunnel` int(11) NOT NULL, 
-			                      PRIMARY KEY  (`idsite`,`idgoal`, `idfunnel`) ';
-	  self::createTable('funnels', $funnels_table_spec);
+		$funnels_table_spec = "`idsite` int(11) NOT NULL,
+		                       `idgoal` int(11) NOT NULL,
+		            		   `idfunnel` int(11) NOT NULL, 
+		 					   `deleted` tinyint(4) NOT NULL default '0',
+		                      	PRIMARY KEY  (`idsite`,`idgoal`, `idfunnel`) ";
+		self::createTable('funnel', $funnels_table_spec);
   
-    $funnel_steps_table_spec = " `idfunnel` int(11) NOT NULL, 
-		                             `idstep` int(11) NOT NULL, 
-		                             `name` varchar(50) NOT NULL,
-		                             `match_attribute` varchar(20) NOT NULL,
-	                               `pattern` varchar(255) NOT NULL,
-	                               `pattern_type` varchar(10) NOT NULL,
-	                               `case_sensitive` tinyint(4) NOT NULL,
-	                               `deleted` tinyint(4) NOT NULL default '0',
-		                             PRIMARY KEY  (`idfunnel`, `idstep`) ";
-		self::createTable('funnel_steps', $funnel_steps_table_spec);
+		$funnel_steps_table_spec = "`idsite` int(11) NOT NULL,
+									`idfunnel` int(11) NOT NULL, 
+                         			`idstep` int(11) NOT NULL, 
+                         			`name` varchar(50) NOT NULL,
+                         			`match_attribute` varchar(20) NOT NULL,
+                          			`pattern` varchar(255) NOT NULL,
+                          			`pattern_type` varchar(10) NOT NULL,
+                          			`case_sensitive` tinyint(4) NOT NULL,
+                          			`deleted` tinyint(4) NOT NULL default '0',
+                         			PRIMARY KEY  (`idfunnel`, `idsite`, `idstep`) ";
+		self::createTable('funnel_step', $funnel_steps_table_spec);
+		
+		$log_table_spec = "`idvisit` int(11) NOT NULL,
+	                      `idsite` int(11) NOT NULL,
+	                      `visitor_idcookie` char(32) NOT NULL,
+                    	  `server_time` datetime NOT NULL,
+                    	  `idaction_url` int(11) default NULL,
+                    	  `idlink_va` int(11) default NULL,
+                    	  `referer_idvisit` int(10) unsigned default NULL,
+                    	  `referer_visit_server_date` date default NULL,
+                    	  `referer_type` int(10) unsigned default NULL,
+                    	  `referer_name` varchar(70) default NULL,
+                    	  `referer_keyword` varchar(255) default NULL,
+                    	  `visitor_returning` tinyint(1) NOT NULL,
+                    	  `location_country` char(3) NOT NULL,
+                    	  `location_continent` char(3) NOT NULL,
+                    	  `url` text NOT NULL,
+                    	  `idgoal` int(11) NOT NULL,
+                    	  `idfunnel` int(11) NOT NULL, 
+                    	  `idstep` int(11) NOT NULL, 
+                    	  PRIMARY KEY  (`idvisit`, `idstep`),
+                    	  INDEX index_idsite_datetime ( idsite, server_time ) ";
+		self::createTable('log_funnel_step', $log_table_spec);
 	}
 	
 	/**
@@ -66,29 +111,18 @@ class Piwik_Funnels extends Piwik_Plugin
 	 */
 	public function uninstall()
 	{
-		$sql = "DROP TABLE ". Piwik::prefixTable('funnels') ;
-		Piwik_Exec($sql);		
-		$sql =  "DROP TABLE ". Piwik::prefixTable('funnel_steps') ;
-		Piwik_Exec($sql);	
+		$sql = "DROP TABLE ". Piwik::prefixTable('funnel') ;
+		Piwik_Exec($sql);    
+		$sql =  "DROP TABLE ". Piwik::prefixTable('funnel_step') ;
+		Piwik_Exec($sql);  
+		$sql =  "DROP TABLE ". Piwik::prefixTable('log_funnel_step') ;
+		Piwik_Exec($sql);
 	}
 
 	function createTable( $tablename, $spec ) 
 	{
-	  // we catch the exceptions in order to check if it's just 
-		// a '[table|column] already exists' error
-	  try{
-			$sql = "CREATE TABLE ". Piwik::prefixTable($tablename)." ( $spec )  DEFAULT CHARSET=utf8 " ;
-			Piwik_Exec($sql);
-		} catch(Exception $e){
-			// mysql code error 1050:table already exists
-			// see bug #153 http://dev.piwik.org/trac/ticket/153
-			// OK if just reinstalling the plugin
-			if(!Zend_Registry::get('db')->isErrNo($e, '1050'))
-			{
-				throw $e;
-			}
-		}
-	  
+		$sql = "CREATE TABLE IF NOT EXISTS ". Piwik::prefixTable($tablename)." ( $spec )  DEFAULT CHARSET=utf8 " ;
+		Piwik_Exec($sql);
 	}
 	
 }

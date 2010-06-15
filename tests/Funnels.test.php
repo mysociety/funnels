@@ -9,12 +9,19 @@ if(!defined('PIWIK_CONFIG_TEST_INCLUDED'))
 
 require_once PIWIK_PATH_TEST_TO_ROOT . '/tests/core/Database.test.php';
 
+require_once "Funnels/Funnels.php";
+
 class Test_Piwik_Funnels extends Test_Database
 {
     function setUp()
     {
     	parent::setUp();
     
+    }
+    
+    function test_test()
+    {
+     
     }
     
 
