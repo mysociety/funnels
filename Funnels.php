@@ -42,8 +42,47 @@ class Piwik_Funnels extends Piwik_Plugin
 	{
 		$hooks = array(
 			'Menu.add' => 'addMenus',
+			'Tracker.Action.record' => 'recordFunnelSteps',
+			'ArchiveProcessing_Day.compute' => 'archiveDay',
+			'ArchiveProcessing_Period.compute' => 'archivePeriod',
 		);
 		return $hooks;
+	}
+	
+	function recordFunnelSteps( $notification )
+	{
+		$info = $notification->getNotificationInfo();
+		$idSite = $info['idSite'];
+		$idVisit = $info['idVisit'];
+		
+		$action = $notification->getNotificationObject();
+		$actionName = $action->getActionName();
+		$sanitizedUrl = $action->getActionUrl();
+		$actionUrl = htmlspecialchars_decode($sanitizedUrl);
+		$idActionUrl = $action->getIdActionUrl();
+		$url = Piwik_Common::getRequestVar( 'url', '', 'string', $action->getRequest());
+		
+		$funnels = Piwik_Funnels_API::getInstance()->getFunnels($idSite);
+		foreach($funnels as &$funnel)
+		{
+			$steps = $funnel['steps'];
+			
+			foreach($steps as &$step) 
+			{				
+				if ($step['url'] == $actionUrl or $step['name'] == $actionName) 
+				{
+					printDebug("Matched Goal Funnel " . $funnel['idfunnel'] . " Step " . $step['idstep'] . "(name: " . $step['name'] . ", url: " . $step['url']. "). Recording...");
+					
+					Piwik_Query("INSERT INTO " . Piwik_Common::prefixTable('log_funnel_step') . "
+								(idvisit, idsite, idaction_url, url, idgoal, idfunnel, idstep)
+								VALUES (?, ?, ?, ?, ?, ?, ?)",
+								array($idVisit, $idSite, $idActionUrl, $url,
+								$funnel['idgoal'],$step['idfunnel'],$step['idstep']));
+				}
+				
+			}
+		}
+
 	}
 	
 	function addMenus()
@@ -57,6 +96,16 @@ class Piwik_Funnels extends Piwik_Plugin
 		} else {
 			Piwik_AddMenu('Funnels_Funnels', 'Funnels_Overview', array('module' => 'Funnels'));	
 		}
+	}
+	
+	function archiveDay( $notification )
+	{
+		
+	}
+	
+	function archivePeriod( $notification )
+	{
+		
 	}
 	
 	/**
@@ -74,11 +123,8 @@ class Piwik_Funnels extends Piwik_Plugin
 		$funnel_steps_table_spec = "`idsite` int(11) NOT NULL,
 									`idfunnel` int(11) NOT NULL, 
                          			`idstep` int(11) NOT NULL, 
-                         			`name` varchar(50) NOT NULL,
-                         			`match_attribute` varchar(20) NOT NULL,
-                          			`pattern` varchar(255) NOT NULL,
-                          			`pattern_type` varchar(10) NOT NULL,
-                          			`case_sensitive` tinyint(4) NOT NULL,
+                         			`name` varchar(255) NOT NULL,
+                         			`url` text NOT NULL,
                           			`deleted` tinyint(4) NOT NULL default '0',
                          			PRIMARY KEY  (`idfunnel`, `idsite`, `idstep`) ";
 		self::createTable('funnel_step', $funnel_steps_table_spec);
@@ -124,6 +170,7 @@ class Piwik_Funnels extends Piwik_Plugin
 		$sql = "CREATE TABLE IF NOT EXISTS ". Piwik::prefixTable($tablename)." ( $spec )  DEFAULT CHARSET=utf8 " ;
 		Piwik_Exec($sql);
 	}
+	
 	
 }
 

@@ -3,12 +3,13 @@
     <h2>{'Funnels_AddNewFunnel'|translate}</h2>
 {else}
 	<h2>
-	{if count($goalsWithoutFunnels) == 0}
-		{'Funnels_AddNewGoal'|translate:"<a onclick='' name='linkAddNewGoal'>+":"</a>"}
-	{else}
+	{if count($goalsWithoutFunnels) > 0}
+
 		{'Funnels_AddNewFunnelLink'|translate:"<a onclick='' name='linkAddNewFunnel'>+":"</a>"}
 	{/if} 
-	{'Funnels_Or'|translate}
+	{if count($goalsWithoutFunnels) > 0 and count($funnels) > 0}
+		{'Funnels_Or'|translate}
+	{/if}
 	{if count($funnels) > 0}
 		{'Funnels_EditExistingFunnel'|translate:"<a onclick='' name='linkEditFunnels'>":"</a>"}
 	{/if}

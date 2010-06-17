@@ -32,15 +32,16 @@ class Piwik_Funnels_API
 								   FROM   ".$funnel_table.", ".$goal_table." 
 								   WHERE  ".$funnel_table.".idsite = ?
 								   AND    ".$funnel_table.".idgoal = ".$goal_table.".idgoal
-								   AND    ".$funnel_table.".deleted = 0", $idSite);
+								   AND    ".$funnel_table.".deleted = 0", array($idSite));
 		$funnelsById = array();
 		foreach($funnels as &$funnel)
 		{
 			$funnel_steps = Piwik_FetchAll("SELECT *
 											FROM   ".$funnel_step_table."
 											WHERE  idsite = ?
-											AND idfunnel = ?", array($idSite, $funnel['idfunnel']));
-			$funnel['funnel_steps'] = $funnel_steps;
+											AND idfunnel = ?
+											AND deleted = 0", array($idSite, $funnel['idfunnel']));
+			$funnel['steps'] = $funnel_steps;
 			$funnelsById[$funnel['idfunnel']] = $funnel;
 		}
 		return $funnelsById;
@@ -71,35 +72,67 @@ class Piwik_Funnels_API
 		return $goalsWithoutFunnels;
 	}
 	
-	public function addFunnel( $idSite, $idGoal )
+	public function addFunnel( $idSite, $idGoal, $steps )
 	{
 		Piwik::checkUserHasAdminAccess($idSite);
 		// save in db
-		$db = Zend_Registry::get('db');
-		$idFunnel = $db->fetchOne("SELECT max(idfunnel) + 1 
-								FROM ".Piwik::prefixTable('funnel')." 
-								WHERE idsite = ?", $idSite);
+		$idFunnel = Piwik_FetchOne("SELECT max(idfunnel) + 1 
+						     		FROM ".Piwik::prefixTable('funnel')." 
+							     	WHERE idsite = ?", $idSite);
 		if($idFunnel == false)
 		{
 			$idFunnel = 1;
 		}
-		$db->insert(Piwik::prefixTable('funnel'),
-					array( 
-						'idsite' => $idSite,
-						'idgoal' => $idGoal,
-						'idfunnel' => $idFunnel,
-					));
+		Piwik_Query("INSERT INTO " . Piwik::prefixTable('funnel')."
+					(idsite, idgoal, idfunnel)
+					VALUES (?, ?, ?)", array($idSite, $idGoal, $idFunnel));
 		Piwik_Common::regenerateCacheWebsiteAttributes($idSite);
+		$this->updateFunnel($idSite, $idGoal, $idFunnel, $steps);
 		return $idFunnel;
 	}
 	
-	public function updateFunnel( $idSite, $idGoal, $idFunnel )
+	public function updateFunnel( $idSite, $idGoal, $idFunnel, $steps=array())
 	{
 		Piwik::checkUserHasAdminAccess($idSite);
-		Zend_Registry::get('db')->update( Piwik::prefixTable('funnel'), 
-					array(),
-					"idsite = '$idSite' AND idgoal = '$idGoal' AND idfunnel = '$idFunnel'"
-			);	
+		$currentStepIds = array();
+		
+		foreach($steps as &$step){
+			$idStep = $step['id'];
+			if (! is_numeric($idStep))
+			{
+				continue;
+			}
+			$currentStepIds[] = $idStep;
+			$name = $this->checkName($step['name']);
+			$url = $this->checkUrl($step['url']);
+			$exists = Piwik_FetchOne("SELECT idstep
+									FROM ".Piwik::prefixTable('funnel_step')." 
+									WHERE idsite = ? 
+									AND idfunnel = ?
+									AND idstep = ?", array($idSite, $idFunnel, $idStep));
+			if ($exists){
+				Piwik_Query("UPDATE ".Piwik::prefixTable('funnel_step')."
+							 SET name = ?, url = ?, deleted = 0
+							 WHERE idsite = ? AND idstep = ? AND idfunnel = ?", 
+							 array($name, $url, $idSite, $idStep, $idFunnel));	
+			} else {
+				Piwik_Query("INSERT INTO ". Piwik::prefixTable('funnel_step')."
+							 (idsite, idfunnel, idstep, name, url) 
+							 VALUES (?, ?, ?, ?, ?)", 
+   							 array($idSite, $idFunnel, $idStep, $name, $url));
+			}
+		}
+		// Any steps not currently defined should be set to deleted
+		$whereClause = " WHERE idsite = ? AND idfunnel = ? ";
+		$params = array($idSite, $idFunnel);
+		if (count($currentStepIds) > 0) 
+		{
+			$currentStepIds = join(', ', $currentStepIds);
+			$whereClause .= "AND idstep not in ($currentStepIds)";
+		}
+		Piwik_Query("UPDATE ". Piwik::prefixTable('funnel_step')."
+					 SET deleted = 1
+					 $whereClause", $params);
 		Piwik_Common::regenerateCacheWebsiteAttributes($idSite);
 	}
 	
@@ -114,4 +147,15 @@ class Piwik_Funnels_API
 									array($idSite, $idGoal, $idFunnel));
 		Piwik_Common::regenerateCacheWebsiteAttributes($idSite);
 	}
+	
+	private function checkName($name)
+	{
+		return urldecode($name);
+	}
+	
+	private function checkUrl($url)
+	{
+		return urldecode($url);
+	}
+	
 }
