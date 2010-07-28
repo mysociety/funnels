@@ -13,7 +13,7 @@
 		</ul>
 		<br>
 {/if}
-{ajaxErrorDiv}
+{ajaxErrorDiv id=funnelAjaxError}
 {ajaxLoadingDiv id=funnelAjaxLoading}
 
 {if !isset($onlyShowAddNewFunnel)}

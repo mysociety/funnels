@@ -2,7 +2,7 @@
 <form>
 <table class="dataTable tableFormFunnels">
 	<tr class="first">
-		<th colspan="3">{'Funnels_CreateFunnel'|translate} </th>
+		<th colspan="3">{'Funnels_Funnel'|translate} </th>
 	<tr>
 	<tbody>
 		<tr>

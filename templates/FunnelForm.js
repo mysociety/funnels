@@ -85,7 +85,7 @@ function bindListFunnelEdit()
 
 function getAjaxDeleteFunnel(idFunnel, idGoal)
 {
-	var ajaxRequest = piwikHelper.getStandardAjaxConf('funnelAjaxLoading');
+	var ajaxRequest = piwikHelper.getStandardAjaxConf('funnelAjaxLoading', 'funnelAjaxError');
 	$.scrollTo("#AddEditFunnels", 400);
 	
 	var parameters = {};
@@ -102,7 +102,7 @@ function getAjaxDeleteFunnel(idFunnel, idGoal)
 
 function getAjaxAddEditFunnel()
 {
-	var ajaxRequest = piwikHelper.getStandardAjaxConf('funnelAjaxLoading');
+	var ajaxRequest = piwikHelper.getStandardAjaxConf('funnelAjaxLoading', 'funnelAjaxError');
 	$.scrollTo("#AddEditFunnels", 400);
 	var parameters = {};
 	
