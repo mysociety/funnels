@@ -19,6 +19,7 @@ $translations = array(
 	'Funnels_NoFunnelsNeedAccess' => 'Only an Administrator or the Super User can add Funnels for a given website. Please ask your Piwik administrator to set up a Funnel for a Goal for your website.',
     'Funnels_AddNewFunnel' => 'Add a new Goal Funnel',	
 	'Funnels_AddNewFunnelLink' => 'Add a new Goal Funnel',
+	'Funnels_CreateFunnel' => 'Create a Funnel',
 	'Funnels_FunnelsManagement' => 'Funnels Management',
 	'Funnels_EditExistingFunnel' => 'Edit existing Goal Funnels',
 	'Funnels_AddNewGoal' => 'Add a new Goal',

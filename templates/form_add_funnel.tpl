@@ -1,22 +1,15 @@
-{literal}
-<style>
-.goalInlineHelp{
-	color:#9B9B9B;
-}
-.tableForm { 
-	width:700px;
-}
-</style>
-{/literal}
 <span id='FunnelForm' style="display:none;">
 <form>
-<table class="tableForm">
+<table class="dataTable tableFormFunnels">
+	<tr class="first">
+		<th colspan="3">{'Funnels_CreateFunnel'|translate} </th>
+	<tr>
 	<tbody>
 		<tr>
 			<td></td>
             <td>{'Funnels_FunnelGoal'|translate} </td>
 			<td>
-				<select name="goal_id">
+				<select name="goal_id" class="inp">
 					{foreach from=$goalsWithoutFunnels item=goal}
 					<option value="{$goal.idgoal}">{$goal.name}</option>
 					{/foreach}
@@ -36,24 +29,19 @@
 			<tr>
 	            <td>{'Funnels_Step'|translate} {$smarty.section.funnel_step.index}</td>
 				<td>
-					<input type="text" name="step_url" id="step_url_{$smarty.section.funnel_step.index}" value="" />
+					<input type="text" class="inp" name="step_url" size="40" id="step_url_{$smarty.section.funnel_step.index}" value="" />
 				</td>
 				<td>
-					<input type="text" name="step_name" id="step_name_{$smarty.section.funnel_step.index}" value="" />
+					<input type="text" class="inp" name="step_name" size="40" id="step_name_{$smarty.section.funnel_step.index}" value="" />
 				</td>
 			</tr>
 		{/section}
-		<tr>
-			<td colspan="2" style="border:0">
-				<input type="hidden" name="methodFunnelAPI" value="" />	
-				<input type="hidden" name="funnelIdUpdate" value="" />
-				<input type="hidden" name="goalId" value="" />
-				<center>
-	            <input type="submit" value="" name="submit" id="funnel_submit" class="submit" />
-	            </center>
-			</td>
-		</tr>
+
 	</tbody>
 </table>
+	<input type="hidden" name="methodFunnelAPI" value="" />	
+	<input type="hidden" name="funnelIdUpdate" value="" />
+	<input type="hidden" name="goalId" value="" />
+    <input type="submit" value="" name="submit" id="funnel_submit" class="but_submit" />
 </form>
 </span>

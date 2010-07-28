@@ -1,5 +1,3 @@
-<link rel="stylesheet" type="text/css" href="plugins/Funnels/templates/funnel.css" />
-
 <h2>{$name}</h2>
 <table class="funnel">
 	<tbody>

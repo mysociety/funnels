@@ -11,6 +11,7 @@
 			<li><a onclick='' name='linkEditFunnels'><u>{'Funnels_EditExistingFunnel'|translate}</u></a></li>
 			{/if}
 		</ul>
+		<br>
 {/if}
 {ajaxErrorDiv}
 {ajaxLoadingDiv id=funnelAjaxLoading}

@@ -42,6 +42,8 @@ class Piwik_Funnels extends Piwik_Plugin
 	function getListHooksRegistered()
 	{
 		$hooks = array(
+			'AssetManager.getCssFiles' => 'getCssFiles',
+			'AssetManager.getJsFiles' => 'getJsFiles',
 			'Menu.add' => 'addMenus',
 			'Tracker.Action.record' => 'recordFunnelSteps',
 			'ArchiveProcessing_Day.compute' => 'archiveDay',
@@ -49,6 +51,20 @@ class Piwik_Funnels extends Piwik_Plugin
 		);
 		return $hooks;
 	}
+	
+	
+	function getJsFiles( $notification )
+	{
+		$jsFiles = &$notification->getNotificationObject();
+		$jsFiles[] = "plugins/Funnels/templates/FunnelForm.js";
+	}
+
+	function getCssFiles( $notification )
+	{
+		$cssFiles = &$notification->getNotificationObject();
+		$cssFiles[] = "plugins/Funnels/templates/funnels.css";
+	}
+	
 	
 	function recordFunnelSteps( $notification )
 	{
