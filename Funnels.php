@@ -81,7 +81,7 @@ class Piwik_Funnels extends Piwik_Plugin
 					
 					// Look to see if this step has already been recorded for this visit 
 					$exists = Piwik_FetchOne("SELECT idlink_va
-											FROM ".Piwik::prefixTable('log_funnel_step')." 
+											FROM ".Piwik_Common::prefixTable('log_funnel_step')." 
 											WHERE idsite = ? 
 											AND idfunnel = ?
 											AND idstep = ?
@@ -310,17 +310,17 @@ class Piwik_Funnels extends Piwik_Plugin
 	 */
 	public function uninstall()
 	{
-		$sql = "DROP TABLE ". Piwik::prefixTable('funnel') ;
+		$sql = "DROP TABLE ". Piwik_Common::prefixTable('funnel') ;
 		Piwik_Exec($sql);    
-		$sql =  "DROP TABLE ". Piwik::prefixTable('funnel_step') ;
+		$sql =  "DROP TABLE ". Piwik_Common::prefixTable('funnel_step') ;
 		Piwik_Exec($sql);  
-		$sql =  "DROP TABLE ". Piwik::prefixTable('log_funnel_step') ;
+		$sql =  "DROP TABLE ". Piwik_Common::prefixTable('log_funnel_step') ;
 		Piwik_Exec($sql);
 	}
 
 	function createTable( $tablename, $spec ) 
 	{
-		$sql = "CREATE TABLE IF NOT EXISTS ". Piwik::prefixTable($tablename)." ( $spec )  DEFAULT CHARSET=utf8 " ;
+		$sql = "CREATE TABLE IF NOT EXISTS ". Piwik_Common::prefixTable($tablename)." ( $spec )  DEFAULT CHARSET=utf8 " ;
 		Piwik_Exec($sql);
 	}
 	

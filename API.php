@@ -77,13 +77,13 @@ class Piwik_Funnels_API
 		Piwik::checkUserHasAdminAccess($idSite);
 		// save in db
 		$idFunnel = Piwik_FetchOne("SELECT max(idfunnel) + 1 
-						     		FROM ".Piwik::prefixTable('funnel')." 
+						     		FROM ".Piwik_Common::prefixTable('funnel')." 
 							     	WHERE idsite = ?", $idSite);
 		if($idFunnel == false)
 		{
 			$idFunnel = 1;
 		}
-		Piwik_Query("INSERT INTO " . Piwik::prefixTable('funnel')."
+		Piwik_Query("INSERT INTO " . Piwik_Common::prefixTable('funnel')."
 					(idsite, idgoal, idfunnel)
 					VALUES (?, ?, ?)", array($idSite, $idGoal, $idFunnel));
 		Piwik_Common::regenerateCacheWebsiteAttributes($idSite);
@@ -106,17 +106,17 @@ class Piwik_Funnels_API
 			$name = $this->checkName($step['name']);
 			$url = $this->checkUrl($step['url']);
 			$exists = Piwik_FetchOne("SELECT idstep
-									FROM ".Piwik::prefixTable('funnel_step')." 
+									FROM ".Piwik_Common::prefixTable('funnel_step')." 
 									WHERE idsite = ? 
 									AND idfunnel = ?
 									AND idstep = ?", array($idSite, $idFunnel, $idStep));
 			if ($exists){
-				Piwik_Query("UPDATE ".Piwik::prefixTable('funnel_step')."
+				Piwik_Query("UPDATE ".Piwik_Common::prefixTable('funnel_step')."
 							 SET name = ?, url = ?, deleted = 0
 							 WHERE idsite = ? AND idstep = ? AND idfunnel = ?", 
 							 array($name, $url, $idSite, $idStep, $idFunnel));	
 			} else {
-				Piwik_Query("INSERT INTO ". Piwik::prefixTable('funnel_step')."
+				Piwik_Query("INSERT INTO ". Piwik_Common::prefixTable('funnel_step')."
 							 (idsite, idfunnel, idstep, name, url) 
 							 VALUES (?, ?, ?, ?, ?)", 
    							 array($idSite, $idFunnel, $idStep, $name, $url));
@@ -130,7 +130,7 @@ class Piwik_Funnels_API
 			$currentStepIds = join(', ', $currentStepIds);
 			$whereClause .= "AND idstep not in ($currentStepIds)";
 		}
-		Piwik_Query("UPDATE ". Piwik::prefixTable('funnel_step')."
+		Piwik_Query("UPDATE ". Piwik_Common::prefixTable('funnel_step')."
 					 SET deleted = 1
 					 $whereClause", $params);
 		Piwik_Common::regenerateCacheWebsiteAttributes($idSite);
@@ -139,7 +139,7 @@ class Piwik_Funnels_API
 	public function deleteFunnel( $idSite, $idGoal, $idFunnel )
 	{
 		Piwik::checkUserHasAdminAccess($idSite);
-		Piwik_Query("UPDATE ".Piwik::prefixTable('funnel')."
+		Piwik_Query("UPDATE ".Piwik_Common::prefixTable('funnel')."
 										SET deleted = 1
 										WHERE idsite = ? 
 										AND idgoal = ?

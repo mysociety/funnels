@@ -2,18 +2,15 @@
 {if isset($onlyShowAddNewFunnel)}
     <h2>{'Funnels_AddNewFunnel'|translate}</h2>
 {else}
-	<h2>
-	{if count($goalsWithoutFunnels) > 0}
-
-		{'Funnels_AddNewFunnelLink'|translate:"<a onclick='' name='linkAddNewFunnel'>+":"</a>"}
-	{/if} 
-	{if count($goalsWithoutFunnels) > 0 and count($funnels) > 0}
-		{'Funnels_Or'|translate}
-	{/if}
-	{if count($funnels) > 0}
-		{'Funnels_EditExistingFunnel'|translate:"<a onclick='' name='linkEditFunnels'>":"</a>"}
-	{/if}
-	</h2>
+<h2>{'Funnels_FunnelsManagement'|translate}</h2>
+		<ul class='listCircle'>
+			{if count($goalsWithoutFunnels) > 0}
+			<li><a onclick='' name='linkAddNewFunnel'><u>{'Funnels_AddNewFunnelLink'|translate}</u></a></li>
+			{/if} 
+			{if count($funnels) > 0}
+			<li><a onclick='' name='linkEditFunnels'><u>{'Funnels_EditExistingFunnel'|translate}</u></a></li>
+			{/if}
+		</ul>
 {/if}
 {ajaxErrorDiv}
 {ajaxLoadingDiv id=funnelAjaxLoading}
