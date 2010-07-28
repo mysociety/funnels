@@ -28,7 +28,7 @@ class Piwik_Funnels_API
 		$funnel_table = Piwik_Common::prefixTable('funnel');
 		$goal_table = Piwik_Common::prefixTable('goal');
 		$funnel_step_table = Piwik_Common::prefixTable('funnel_step');
-		$funnels = Piwik_FetchAll("SELECT ".$funnel_table.".*, ".$goal_table.".name as goal_name
+		$funnels = Piwik_FetchAll("SELECT ".$funnel_table.".*, ".$goal_table.".name as goal_name, ".$goal_table.".idgoal
 								   FROM   ".$funnel_table.", ".$goal_table." 
 								   WHERE  ".$funnel_table.".idsite = ?
 								   AND    ".$funnel_table.".idgoal = ".$goal_table.".idgoal
@@ -146,6 +146,48 @@ class Piwik_Funnels_API
 										AND idfunnel = ?",
 									array($idSite, $idGoal, $idFunnel));
 		Piwik_Common::regenerateCacheWebsiteAttributes($idSite);
+	}
+	
+	public function get( $idSite, $period, $date, $idFunnel = false, $columns = array() )
+	{
+		Piwik::checkUserHasViewAccess( $idSite );
+		$archive = Piwik_Archive::build( $idSite, $period, $date );
+		if(!empty($columns))
+		{
+			$toFetch = $columns;
+		}
+		else
+		{
+			$toFetch = array();
+			$stepColumnNames = array(
+						'nb_actions',
+						'nb_next_step_actions', 
+						'percent_next_step_actions'
+					);
+			$funnels = $this->getFunnels($idSite);
+			foreach($stepColumnNames as $columnName)
+			{
+				if (!empty($idFunnel)) {
+					$funnel = $funnels[$idFunnel];
+					foreach($funnel['steps'] as $step) {
+						$toFetch[] = Piwik_Funnels::getRecordName($columnName, $idFunnel, $step['idstep']);
+					}
+				}
+			}
+			
+			$funnelColumnNames = array(
+				'nb_actions',
+				'conversion_rate');
+			foreach($funnelColumnNames as $columnName)
+			{
+				if (!empty($idFunnel)) {
+					$funnel = $funnels[$idFunnel];
+					$toFetch[] = Piwik_Funnels::getRecordName($columnName, $idFunnel, false);
+				}
+			}
+		}
+		$dataTable = $archive->getDataTableFromNumeric($toFetch);
+		return $dataTable;
 	}
 	
 	private function checkName($name)

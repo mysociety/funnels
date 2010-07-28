@@ -13,6 +13,7 @@
  
 class Piwik_Funnels_Controller extends Piwik_Controller
 {		
+	const ROUNDING_PRECISION = 2;
 	
 	function __construct()
 	{
@@ -41,5 +42,54 @@ class Piwik_Funnels_Controller extends Piwik_Controller
 		$view->userCanEditFunnels = Piwik::isUserHasAdminAccess($this->idSite);
 		$view->goalsWithoutFunnels = Piwik_Funnels_API::getInstance()->getGoalsWithoutFunnels($this->idSite);
 		echo $view->render();
+	}
+	
+	function funnelReport()
+	{
+		$idFunnel = Piwik_Common::getRequestVar('idFunnel', null, 'int');
+		if(!isset($this->funnels[$idFunnel]))
+		{
+			Piwik::redirectToModule('Funnels', 'index', array('idFunnel' => null));
+		}
+		// Set up the view
+		$view = Piwik_View::factory('single_funnel');
+		$this->setGeneralVariablesView($view);
+		
+		// Get the funnel and related goal data
+		$funnelDefinition = $this->funnels[$idFunnel];
+		$idGoal = $funnelDefinition['idgoal'];
+		$goal_request = new Piwik_API_Request("method=Goals.get&format=original&idGoal=$idGoal");
+		$datatable = $goal_request->process();
+		$dataRow = $datatable->getFirstRow();
+		$view->goal_conversions = $dataRow->getColumn(Piwik_Goals::getRecordName('nb_conversions', $idGoal));
+		$view->name = $funnelDefinition['goal_name'];
+		
+		// Get the data on each funnel step 
+		$funnel_data = $this->getMetricsForFunnel($idFunnel);
+		foreach ($funnelDefinition['steps'] as &$step) {
+			$recordName = Piwik_Funnels::getRecordName('nb_actions', $idFunnel, $step['idstep']);
+			$step['nb_actions'] = $funnel_data->getColumn($recordName);
+			$recordName = Piwik_Funnels::getRecordName('nb_next_step_actions', $idFunnel, $step['idstep']);
+			$step['nb_next_step_actions'] = $funnel_data->getColumn($recordName);
+			$recordName = Piwik_Funnels::getRecordName('percent_next_step_actions', $idFunnel, $step['idstep']);
+			$step['percent_next_step_actions'] = round($funnel_data->getColumn($recordName), self::ROUNDING_PRECISION);
+		}
+		
+		// What percent of people who visited the first funnel step converted at the end of the funnel?
+		$recordName = Piwik_Funnels::getRecordName('conversion_rate', $idFunnel, false);
+		$view->conversion_rate = round($funnel_data->getColumn($recordName), self::ROUNDING_PRECISION);
+
+		// Let the view access the funnel steps
+		$view->steps = $funnelDefinition['steps'];
+		echo $view->render();
+
+	}
+
+	protected function getMetricsForFunnel($idFunnel)
+	{
+		$request = new Piwik_API_Request("method=Funnels.get&format=original&idFunnel=$idFunnel");
+		$datatable = $request->process();
+		$dataRow = $datatable->getFirstRow();
+		return $dataRow;
 	}
 }

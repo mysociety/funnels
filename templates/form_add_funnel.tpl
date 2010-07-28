@@ -32,7 +32,7 @@
 			<td style="font-weight:bold">{'Funnels_StepUrl'|translate} </td>
 			<td style="font-weight:bold">{'Funnels_StepName'|translate}</td>
 		</tr>
-		{section name=funnel_step start=1 loop=4 step=1}
+		{section name=funnel_step start=1 loop=11 step=1}
 			<tr>
 	            <td>{'Funnels_Step'|translate} {$smarty.section.funnel_step.index}</td>
 				<td>
