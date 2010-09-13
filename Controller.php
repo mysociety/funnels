@@ -73,6 +73,20 @@ class Piwik_Funnels_Controller extends Piwik_Controller
 			$step['nb_next_step_actions'] = $funnel_data->getColumn($recordName);
 			$recordName = Piwik_Funnels::getRecordName('percent_next_step_actions', $idFunnel, $step['idstep']);
 			$step['percent_next_step_actions'] = round($funnel_data->getColumn($recordName), self::ROUNDING_PRECISION);
+			$step['referring_actions'] = array();
+			$refUrls = $this->getRefUrls($idFunnel, $step['idstep']);
+			
+			foreach($refUrls->getRows() as $row) {
+				$label = $this->labelOrDefault($row->getColumn('label'), '(entrance)');
+				$step['referring_actions'][] = array('label' => $label, 'value' => $row->getColumn('value')); 
+			}
+			
+			$step['next_actions'] = array();
+			$nextUrls = $this->getNextUrls($idFunnel, $step['idstep']);
+			foreach($nextUrls->getRows() as $row) {
+				$label = $this->labelOrDefault($row->getColumn('label'), '(exit)');
+				$step['next_actions'][] = array('label' => $label, 'value' => $row->getColumn('value')); 
+			}
 		}
 		
 		// What percent of people who visited the first funnel step converted at the end of the funnel?
@@ -85,11 +99,39 @@ class Piwik_Funnels_Controller extends Piwik_Controller
 
 	}
 
+	protected function labelOrDefault($label, $default)
+	{
+		if ($label == '')
+		{
+			return $default;
+		}
+		return $label;
+	}
+
+	protected function getNextUrls($idFunnel, $idStep)
+	{	
+		
+		$request = new Piwik_API_Request("method=Funnels.getNextUrls&format=original&idFunnel=$idFunnel&idStep=$idStep");
+		$dataTable = $request->process();
+		return $dataTable;
+		
+	}
+	
+	protected function getRefUrls($idFunnel, $idStep)
+	{	
+		
+		$request = new Piwik_API_Request("method=Funnels.getRefUrls&format=original&idFunnel=$idFunnel&idStep=$idStep");
+		$dataTable = $request->process();
+		return $dataTable;
+		
+	}
+	
 	protected function getMetricsForFunnel($idFunnel)
 	{
 		$request = new Piwik_API_Request("method=Funnels.get&format=original&idFunnel=$idFunnel");
-		$datatable = $request->process();
-		$dataRow = $datatable->getFirstRow();
+		$dataTable = $request->process();
+		$dataRow = $dataTable->getFirstRow();
+		
 		return $dataRow;
 	}
 }

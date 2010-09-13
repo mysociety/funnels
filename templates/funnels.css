@@ -1,0 +1,147 @@
+/* Funnel form */
+
+#AddEditFunnels {
+  width: 614px;
+}
+
+#AddEditFunnels .but_submit{
+	clear:both; 
+	color:#fff;
+	font:18px Arial, Helvetica, sans-serif;
+	padding:3px 10px;
+	border-radius:4px;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	border:0;
+	background:#847b6d url(../../../themes/default/images/dashboard_h_bg_hover.png) repeat-x 0 0;
+	float:right; 
+	margin:12px 0 0 0;
+}
+
+#AddEditFunnels .inp{  
+	border-radius:4px;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	border:1px solid #d4d4d4;
+	background:#fff url(../../../themes/default/images/inp_bg.png) repeat-x 0 0;
+	padding:3px 10px;
+	color:#255792;
+}
+#AddEditFunnels select.inp{  
+	padding-right:3px;
+	padding-left:7px;
+	margin-right:6px;
+}
+
+.tableFormFunnels { 
+	border-radius:4px!important;
+	-moz-border-radius:4px!important;
+	-webkit-border-radius:4px!important;
+	border-top:1px solid #cdc8bf!important;
+	border-bottom:1px solid #948c7d!important;
+}
+
+.tableFormFunnels tr td.first, .tableFormFunnels tr th.first{ 
+	border-left:0!important;
+}
+
+.tableFormFunnels tr th{ 
+	white-space:nowrap; 
+	padding-top:10px!important;
+	padding-bottom:10px!important;
+}
+.tableFormFunnels tr td, .tableFormFunnels tr th{ 
+	border-bottom:0!important;
+	border-top:1px solid #E7E7E7!important;
+}
+
+
+
+/* Funnel visualization */
+.funnel {
+	width: 100%;
+}
+
+.funnel td.entry, 
+.funnel td.exit {
+	width: 48%;
+}
+
+.funnel td.entry h4 {
+	text-align: right;
+}
+.funnel td.step {
+	padding: 0px 0.5em;
+	text-align:center;
+/*  white-space: nowrap;*/
+}
+.funnel td.step div {
+	border: solid #CCCCCC;
+	border-width: 1px 0px;
+	margin: 0px 1px;
+	padding: 0px;
+	position: relative;
+}
+
+.funnel td.step div div {
+	border-width: 0px 1px;
+	margin: 0px -1px;
+}
+.funnel td.step div div div{
+	border-width: 0px;
+	margin: 0px;
+	padding: 0.5em;
+}
+
+.funnel td.step h3 {
+	font-size: 100%;
+	margin: 0px 0px 0.3em;
+}
+
+.funnel td.step h3 .label{
+	display: block;
+}
+
+.funnel td.step h4 {
+	height: 100px;
+	margin: 0px;
+	padding: 45px 0px 0px;
+	background: url(images/arrow-down.gif) no-repeat center;
+	
+}
+
+.funnel td.entry table,
+.funnel td.exit table { 
+  margin: 0px 25px 0px 0px;
+  border: solid 1px #DDD;
+  font-size: 0.8em;
+  width: 60%;
+}
+.funnel td.entry table {
+  float: right;
+}
+
+.funnel td.entry table .value,
+.funnel td.exit table .value {
+  float: right;
+}
+.funnel td.entry table .label,
+.funnel td.exit table .label{
+  float: left;
+}
+
+.funnel_bar_graph {
+	background: #FF9999;
+	display: block;
+	height: 10px;
+	margin: 0px auto;
+	text-align: left;
+	width: 185px;
+}
+
+.funnel_bar_graph b {
+	background: #CCFF99;
+	display: block;
+	height: 10px;
+}
+

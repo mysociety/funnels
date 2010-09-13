@@ -4,6 +4,16 @@
 		{foreach from=$steps item=step}
 		<tr>
 			<td class="entry">
+				{if $step.referring_actions|@count gt 0}
+				<table>
+					{foreach from=$step.referring_actions item=referrer}
+					<tr>
+						<td class="label">{$referrer.label}</td>
+						<td class="value">{$referrer.value}</td>
+					</tr>
+					{/foreach}
+				</table>
+				{/if}
 			</td>
 			<td class="step">
 				<div>
@@ -23,6 +33,16 @@
 				</h4>
 			</td>
 			<td class="exit">
+					{if $step.next_actions|@count gt 0}
+					<table>
+						{foreach from=$step.next_actions item=next}
+						<tr>
+							<td class="label">{$next.label}</td>
+							<td class="value">{$next.value}</td>
+						</tr>
+						{/foreach}
+					</table>
+					{/if}
 			</td>
 		</tr>
 		{/foreach}
@@ -45,6 +65,7 @@
 				</div>
 			</td>
 			<td class="exit">
+			
 			</td>
 		</tr>
 	</tbody>

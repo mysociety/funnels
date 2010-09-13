@@ -148,6 +148,25 @@ class Piwik_Funnels_API
 		Piwik_Common::regenerateCacheWebsiteAttributes($idSite);
 	}
 	
+	// Get the referring URLs for a funnel step
+	public function getNextUrls( $idSite, $period, $date, $idFunnel, $idStep ) {
+		Piwik::checkUserHasViewAccess( $idSite );
+		$archive = Piwik_Archive::build( $idSite, $period, $date );
+		$recordName = Piwik_Funnels::getRecordName('idaction_url_next', $idFunnel, $idStep);
+		$dataTable = $archive->getDataTable($recordName);
+		return $dataTable;
+	}
+	
+	
+	// Get the referring URLs for a funnel step
+	public function getRefUrls( $idSite, $period, $date, $idFunnel, $idStep ) {
+		Piwik::checkUserHasViewAccess( $idSite );
+		$archive = Piwik_Archive::build( $idSite, $period, $date );
+		$recordName = Piwik_Funnels::getRecordName('idaction_url_ref', $idFunnel, $idStep);
+		$dataTable = $archive->getDataTable($recordName);
+		return $dataTable;
+	}
+	
 	public function get( $idSite, $period, $date, $idFunnel = false, $columns = array() )
 	{
 		Piwik::checkUserHasViewAccess( $idSite );
@@ -159,13 +178,13 @@ class Piwik_Funnels_API
 		else
 		{
 			$toFetch = array();
-			$stepColumnNames = array(
+			$funnels = $this->getFunnels($idSite);
+			$stepNumericColumnNames = array(
 						'nb_actions',
 						'nb_next_step_actions', 
 						'percent_next_step_actions'
 					);
-			$funnels = $this->getFunnels($idSite);
-			foreach($stepColumnNames as $columnName)
+			foreach($stepNumericColumnNames as $columnName)
 			{
 				if (!empty($idFunnel)) {
 					$funnel = $funnels[$idFunnel];
@@ -175,6 +194,7 @@ class Piwik_Funnels_API
 				}
 			}
 			
+					
 			$funnelColumnNames = array(
 				'nb_actions',
 				'conversion_rate');
@@ -186,6 +206,7 @@ class Piwik_Funnels_API
 				}
 			}
 		}
+		
 		$dataTable = $archive->getDataTableFromNumeric($toFetch);
 		return $dataTable;
 	}
