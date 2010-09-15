@@ -41,7 +41,6 @@ class Piwik_Funnels extends Piwik_Plugin
 	
 	function getListHooksRegistered()
 	{
-		Piwik_AssetManager::removeMergedAssets();
 		$hooks = array(
 			'AssetManager.getCssFiles' => 'getCssFiles',
 			'AssetManager.getJsFiles' => 'getJsFiles',
