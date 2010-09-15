@@ -147,6 +147,7 @@
   white-space: nowrap;
   width: 90%;
   overflow: hidden;
+  max-width: 300px;
 }
 
 .funnel_bar_graph {
