@@ -28,7 +28,7 @@ function showAddNewFunnel()
 {
 	$("#FunnelForm").show();
 	$("#EditFunnels").hide();
-	$.scrollTo("#AddEditFunnels", 400);
+	piwikHelper.lazyScrollTo("#AddEditFunnels", 400);
 	return false;
 }
 
@@ -36,7 +36,7 @@ function showEditFunnels()
 {
 	$("#EditFunnels").show();
 	$("#FunnelForm").hide();
-	$.scrollTo("#AddEditFunnels", 400);
+	piwikHelper.lazyScrollTo("#AddEditFunnels", 400);
 	return false;
 }
 
@@ -86,7 +86,7 @@ function bindListFunnelEdit()
 function getAjaxDeleteFunnel(idFunnel, idGoal)
 {
 	var ajaxRequest = piwikHelper.getStandardAjaxConf('funnelAjaxLoading', 'funnelAjaxError');
-	$.scrollTo("#AddEditFunnels", 400);
+	piwikHelper.lazyScrollTo("#AddEditFunnels", 400);
 	
 	var parameters = {};
 	parameters.idSite = piwik.idSite;
@@ -103,7 +103,7 @@ function getAjaxDeleteFunnel(idFunnel, idGoal)
 function getAjaxAddEditFunnel()
 {
 	var ajaxRequest = piwikHelper.getStandardAjaxConf('funnelAjaxLoading', 'funnelAjaxError');
-	$.scrollTo("#AddEditFunnels", 400);
+	piwikHelper.lazyScrollTo("#AddEditFunnels", 400);
 	var parameters = {};
 	
 	parameters.idSite = piwik.idSite;
