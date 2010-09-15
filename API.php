@@ -180,6 +180,8 @@ class Piwik_Funnels_API
 			$toFetch = array();
 			$funnels = $this->getFunnels($idSite);
 			$stepNumericColumnNames = array(
+						'nb_entry',
+						'nb_exit',
 						'nb_actions',
 						'nb_next_step_actions', 
 						'percent_next_step_actions'

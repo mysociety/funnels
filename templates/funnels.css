@@ -62,6 +62,10 @@
 	width: 100%;
 }
 
+.funnel td {
+  vertical-align: top;
+}
+
 .funnel td.entry, 
 .funnel td.exit {
 	width: 48%;
@@ -72,8 +76,8 @@
 }
 .funnel td.step {
 	padding: 0px 0.5em;
+	white-space: nowrap;
 	text-align:center;
-/*  white-space: nowrap;*/
 }
 .funnel td.step div {
 	border: solid #CCCCCC;
@@ -110,9 +114,21 @@
 	
 }
 
+.funnel td.entry h4 {
+  padding: 0px 25px 0px 0px;
+  margin: 3.1em 0px 0.5em;
+  background: url(images/entry-arrow.gif) no-repeat 100% 0%;
+}
+
+.funnel td.exit h4 {
+  padding: 0px 0px 0px 25px;
+  margin: 3.1em 0px 0.5em;
+  background: url(images/exit-arrow.gif) no-repeat 0% 0%;
+}
+
 .funnel td.entry table,
 .funnel td.exit table { 
-  margin: 0px 25px 0px 0px;
+  margin: 0px 0px 0px 0px;
   border: solid 1px #DDD;
   font-size: 0.8em;
   width: 60%;
@@ -128,6 +144,9 @@
 .funnel td.entry table .label,
 .funnel td.exit table .label{
   float: left;
+  white-space: nowrap;
+  width: 90%;
+  overflow: hidden;
 }
 
 .funnel_bar_graph {

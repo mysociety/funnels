@@ -61,28 +61,41 @@ class Piwik_Funnels_Controller extends Piwik_Controller
 		$goal_request = new Piwik_API_Request("method=Goals.get&format=original&idGoal=$idGoal");
 		$datatable = $goal_request->process();
 		$dataRow = $datatable->getFirstRow();
-		$view->goal_conversions = $dataRow->getColumn(Piwik_Goals::getRecordName('nb_conversions', $idGoal));
+		$view->goal_conversions = $dataRow->getColumn('nb_conversions');
 		$view->name = $funnelDefinition['goal_name'];
+	
 		
 		// Get the data on each funnel step 
 		$funnel_data = $this->getMetricsForFunnel($idFunnel);
 		foreach ($funnelDefinition['steps'] as &$step) {
 			$recordName = Piwik_Funnels::getRecordName('nb_actions', $idFunnel, $step['idstep']);
 			$step['nb_actions'] = $funnel_data->getColumn($recordName);
+			
 			$recordName = Piwik_Funnels::getRecordName('nb_next_step_actions', $idFunnel, $step['idstep']);
 			$step['nb_next_step_actions'] = $funnel_data->getColumn($recordName);
+			
 			$recordName = Piwik_Funnels::getRecordName('percent_next_step_actions', $idFunnel, $step['idstep']);
 			$step['percent_next_step_actions'] = round($funnel_data->getColumn($recordName), self::ROUNDING_PRECISION);
+			
+			$recordName = Piwik_Funnels::getRecordName('nb_entry', $idFunnel, $step['idstep']);
+			$step['nb_entry'] = $funnel_data->getColumn($recordName);
+			
 			$step['referring_actions'] = array();
 			$refUrls = $this->getRefUrls($idFunnel, $step['idstep']);
-			
+			$refUrls->filter('Sort', array('value', 'desc'));
+			$refUrls->filter('Limit', array(0, 5));
 			foreach($refUrls->getRows() as $row) {
 				$label = $this->labelOrDefault($row->getColumn('label'), '(entrance)');
 				$step['referring_actions'][] = array('label' => $label, 'value' => $row->getColumn('value')); 
 			}
 			
+			$recordName = Piwik_Funnels::getRecordName('nb_exit', $idFunnel, $step['idstep']);
+			$step['nb_exit'] = $funnel_data->getColumn($recordName);
+			
 			$step['next_actions'] = array();
 			$nextUrls = $this->getNextUrls($idFunnel, $step['idstep']);
+			$nextUrls->filter('Sort', array('value', 'desc'));
+			$nextUrls->filter('Limit', array(0, 5));
 			foreach($nextUrls->getRows() as $row) {
 				$label = $this->labelOrDefault($row->getColumn('label'), '(exit)');
 				$step['next_actions'][] = array('label' => $label, 'value' => $row->getColumn('value')); 

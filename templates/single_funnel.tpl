@@ -4,6 +4,7 @@
 		{foreach from=$steps item=step}
 		<tr>
 			<td class="entry">
+				<h4>{$step.nb_entry}</h4>
 				{if $step.referring_actions|@count gt 0}
 				<table>
 					{foreach from=$step.referring_actions item=referrer}
@@ -33,6 +34,7 @@
 				</h4>
 			</td>
 			<td class="exit">
+					<h4>{$step.nb_exit}</h4>
 					{if $step.next_actions|@count gt 0}
 					<table>
 						{foreach from=$step.next_actions item=next}

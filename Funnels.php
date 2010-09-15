@@ -86,6 +86,7 @@ class Piwik_Funnels extends Piwik_Plugin
 		
 		if (count($funnels) > 0)
 		{
+			printDebug("idActionUrl" . $idActionUrl . " idSite " . $idSite . " idVisit " . $idVisit . " idRefererAction " . $idRefererAction);
 			# Is this the next action for a recorded funnel step? 
 			$previous_step_action = Piwik_Query("UPDATE ".Piwik_Common::prefixTable('log_funnel_step')."
 													SET   idaction_url_next = ?
@@ -228,40 +229,42 @@ class Piwik_Funnels extends Piwik_Plugin
 				
 			}
 
-			for ($i = 0;$i < $last_index; $i++) {
-				$current_step = &$funnelDefinition['steps'][$i];
-				$idStep = $current_step['idstep'];
-				$next_step = $funnelDefinition['steps'][$i+1];				
+			for ($i = 0;$i <= $last_index; $i++) {
+				if ($i < $last_index){
+					$current_step = &$funnelDefinition['steps'][$i];
+					$idStep = $current_step['idstep'];
+					$next_step = $funnelDefinition['steps'][$i+1];				
 				
-				$recordName = Piwik_Funnels::getRecordName('nb_actions', $idFunnel, $idStep);
+					$recordName = Piwik_Funnels::getRecordName('nb_actions', $idFunnel, $idStep);
 				
-				$archiveProcessing->insertNumericRecord($recordName, $current_step['nb_actions']);
+					$archiveProcessing->insertNumericRecord($recordName, $current_step['nb_actions']);
 
-				$recordName = Piwik_Funnels::getRecordName('nb_next_step_actions', $idFunnel, $idStep);
-				# for each url that has been matched to the next funnel step,
-				# add the number of times that url was the next action from this funnel step
-				$nb_next_step_actions = 0;
-				foreach ($next_step['idaction_url'] as $key => $value)
-				{
-					if (isset($current_step['idaction_url_next'][$key]))
+					$recordName = Piwik_Funnels::getRecordName('nb_next_step_actions', $idFunnel, $idStep);
+					# for each url that has been matched to the next funnel step,
+					# add the number of times that url was the next action from this funnel step
+					$nb_next_step_actions = 0;
+					foreach ($next_step['idaction_url'] as $key => $value)
 					{
-						$nb_next_step_actions += $current_step['idaction_url_next'][$key]['value'];
-						unset($current_step['idaction_url_next'][$key]);
-					}
-				}
-				$archiveProcessing->insertNumericRecord($recordName, $nb_next_step_actions);
-				$recordName = Piwik_Funnels::getRecordName('percent_next_step_actions', $idFunnel, $idStep);
-				$archiveProcessing->insertNumericRecord($recordName, $this->percent($nb_next_step_actions, $current_step['nb_actions']));
-			
-				# Remove the previous step from the idaction_url_ref array
-				if ($i > 0)
-				{
-					$previous_step = $funnelDefinition['steps'][$i-1];	
-					foreach ($previous_step['idaction_url'] as $key => $value)
-					{
-						if (isset($current_step['idaction_url_ref'][$key]))
+						if (isset($current_step['idaction_url_next'][$key]))
 						{
-							unset($current_step['idaction_url_ref'][$key]);
+							$nb_next_step_actions += $current_step['idaction_url_next'][$key]['value'];
+							unset($current_step['idaction_url_next'][$key]);
+						}
+					}
+					$archiveProcessing->insertNumericRecord($recordName, $nb_next_step_actions);
+					$recordName = Piwik_Funnels::getRecordName('percent_next_step_actions', $idFunnel, $idStep);
+					$archiveProcessing->insertNumericRecord($recordName, $this->percent($nb_next_step_actions, $current_step['nb_actions']));
+			
+					# Remove the previous step from the idaction_url_ref array
+					if ($i > 0)
+					{
+						$previous_step = $funnelDefinition['steps'][$i-1];	
+						foreach ($previous_step['idaction_url'] as $key => $value)
+						{
+							if (isset($current_step['idaction_url_ref'][$key]))
+							{
+								unset($current_step['idaction_url_ref'][$key]);
+							}
 						}
 					}
 				}
@@ -269,22 +272,35 @@ class Piwik_Funnels extends Piwik_Plugin
 				// Archive the refering and next urls that aren't funnel steps
 				
 				$idActionRef = new Piwik_DataTable();
+				$entryCount = 0;
 				foreach($current_step['idaction_url_ref'] as $id => $data)
 				{
 					$idActionRef->addRowFromSimpleArray($data);
+					$entryCount += $data['value'];
 				}
 				$recordName = Piwik_Funnels::getRecordName('idaction_url_ref', $idFunnel, $idStep);
 				$archiveProcessing->insertBlobRecord($recordName, $idActionRef->getSerialized());
 				destroy($idActionRef);	
 				
+				# and a sum of entry actions
+				$recordName = Piwik_Funnels::getRecordName('nb_entry', $idFunnel, $idStep);
+				$archiveProcessing->insertNumericRecord($recordName, $entryCount);
+				
+				
 				$idActionNext = new Piwik_DataTable();
+				$exitCount = 0;
 				foreach($current_step['idaction_url_next'] as $id => $data)
 				{
 					$idActionNext->addRowFromSimpleArray($data);
+					$exitCount += $data['value'];
 				}
 				$recordName = Piwik_Funnels::getRecordName('idaction_url_next', $idFunnel, $idStep);
 				$archiveProcessing->insertBlobRecord($recordName, $idActionNext->getSerialized());
 				destroy($idActionNext);		
+				
+				# and a sum of exit actions
+				$recordName = Piwik_Funnels::getRecordName('nb_exit', $idFunnel, $idStep);
+				$archiveProcessing->insertNumericRecord($recordName, $exitCount);
 			}
 		
 			// For the last step, the comparison is the goal itself
@@ -296,6 +312,7 @@ class Piwik_Funnels extends Piwik_Plugin
 			
 			$recordName = Piwik_Funnels::getRecordName('nb_next_step_actions', $idFunnel, $idStep);
 			$nb_goal_actions = 0;
+			
 			foreach ($goalConversions as $key => $value)
 			{
 				if (isset($last_step['idaction_url_next'][$key]))
@@ -322,36 +339,16 @@ class Piwik_Funnels extends Piwik_Plugin
 				}
 			}
 			
-			
-			// Archive the refering and next urls that aren't funnel steps
-			$idActionRef = new Piwik_DataTable();
-			foreach($last_step['idaction_url_ref'] as $id => $data)
-			{
-				$idActionRef->addRowFromSimpleArray($data);
-			}
-			$recordName = Piwik_Funnels::getRecordName('idaction_url_ref', $idFunnel, $idStep);
-			$archiveProcessing->insertBlobRecord($recordName, $idActionRef->getSerialized());
-			destroy($idActionRef);
-			
-			$idActionNext = new Piwik_DataTable();
-			foreach($last_step['idaction_url_next'] as $id => $data)
-			{
-				$idActionNext->addRowFromSimpleArray($data);
-			}
-			$recordName = Piwik_Funnels::getRecordName('idaction_url_next', $idFunnel, $idStep);
-			$archiveProcessing->insertBlobRecord($recordName, $idActionNext->getSerialized());
-			destroy($idActionNext);
-			
-			
+			// Archive the total funnel actions
+			$recordName = Piwik_Funnels::getRecordName('nb_actions', $idFunnel, false);
+			$archiveProcessing->insertNumericRecord($recordName, $total);
+
 			// What percent of people who visited the first funnel step converted at the end of the funnel?
 			$recordName = Piwik_Funnels::getRecordName('conversion_rate', $idFunnel, false);
 			$archiveProcessing->insertNumericRecord($recordName, $this->percent($nb_goal_actions, $funnelDefinition['steps'][0]['nb_actions']));
 			
 		}
 		
-		// Archive the total funnel actions
-		$recordName = Piwik_Funnels::getRecordName('nb_actions', false, false);
-		$archiveProcessing->insertNumericRecord($recordName, $total);
 	}
 	
 	function archivePeriod( $notification )
