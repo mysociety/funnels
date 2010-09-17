@@ -14,6 +14,7 @@
 class Piwik_Funnels_Controller extends Piwik_Controller
 {		
 	const ROUNDING_PRECISION = 2;
+	const NUM_URLS_TO_DISPLAY = 5;
 	
 	function __construct()
 	{
@@ -83,7 +84,7 @@ class Piwik_Funnels_Controller extends Piwik_Controller
 			$step['referring_actions'] = array();
 			$refUrls = $this->getRefUrls($idFunnel, $step['idstep']);
 			$refUrls->filter('Sort', array('value', 'desc'));
-			$refUrls->filter('Limit', array(0, 5));
+			$refUrls->filter('Limit', array(0, self::NUM_URLS_TO_DISPLAY));
 			foreach($refUrls->getRows() as $row) {
 				$label = $this->labelOrDefault($row->getColumn('label'), '(entrance)');
 				$step['referring_actions'][] = array('label' => $label, 'value' => $row->getColumn('value')); 
@@ -95,7 +96,7 @@ class Piwik_Funnels_Controller extends Piwik_Controller
 			$step['next_actions'] = array();
 			$nextUrls = $this->getNextUrls($idFunnel, $step['idstep']);
 			$nextUrls->filter('Sort', array('value', 'desc'));
-			$nextUrls->filter('Limit', array(0, 5));
+			$nextUrls->filter('Limit', array(0, self::NUM_URLS_TO_DISPLAY));
 			foreach($nextUrls->getRows() as $row) {
 				$label = $this->labelOrDefault($row->getColumn('label'), '(exit)');
 				$step['next_actions'][] = array('label' => $label, 'value' => $row->getColumn('value')); 

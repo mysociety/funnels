@@ -344,7 +344,8 @@ class Piwik_Funnels extends Piwik_Plugin
 			}
 		}
 		$numeric_records = $archiveProcessing->archiveNumericValuesSum($fieldsToSum);
-		$blob_records = $archiveProcessing->archiveDataTable($tablesToSum, null, 7, null, 'value');
+		$rows_to_keep = Piwik_Funnels_Controller::NUM_URLS_TO_DISPLAY+2;
+		$blob_records = $archiveProcessing->archiveDataTable($tablesToSum, null, $rows_to_keep, null, 'value');
 		
 		// also recording percent for each step going to next step, 
 		// conversion rate for funnel
