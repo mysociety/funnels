@@ -76,7 +76,6 @@
 }
 .funnel td.step {
 	padding: 0px 0.5em;
-	white-space: nowrap;
 	text-align:center;
 }
 .funnel td.step div {
