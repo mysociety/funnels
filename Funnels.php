@@ -432,11 +432,7 @@ class Piwik_Funnels extends Piwik_Plugin
 		Piwik_Exec($sql);
 	}
 	
-	protected function testQueryFunnelSteps( $archiveProcessing ) 
-	{
-		$query = $archiveProcessing->db->query("select * from piwik_test");
-		return $query;
-	}
+
 	
 	protected function queryFunnelSteps( $archiveProcessing )
 	{
@@ -483,7 +479,7 @@ class Piwik_Funnels extends Piwik_Plugin
 		$total = 0;
 		// Sum the actions recorded for each funnel step, and store arrays of 
 		// the refering and next urls
-		$query = $this->testQueryFunnelSteps($archiveProcessing);
+		$query = $this->queryFunnelSteps($archiveProcessing);
 		while( $row = $query->fetch() )
 		{
 			$idfunnel = $row['idfunnel'];
