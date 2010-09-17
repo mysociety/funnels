@@ -114,7 +114,7 @@ class Piwik_Funnels_Controller extends Piwik_Controller
 
 	protected function labelOrDefault($label, $default)
 	{
-		if ($label == '')
+		if ($label == 'null')
 		{
 			return $default;
 		}
