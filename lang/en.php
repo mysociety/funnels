@@ -14,10 +14,10 @@
 
 $translations = array(
 	'Funnels_PluginDescription' => 'Allows the definition, analysis and visualisation of funnels associated with goals.',
-    'Funnels_Funnels' => 'Funnels',
+  'Funnels_Funnels' => 'Funnels',
 	'Funnels_Overview' => 'Overview',
 	'Funnels_NoFunnelsNeedAccess' => 'Only an Administrator or the Super User can add Funnels for a given website. Please ask your Piwik administrator to set up a Funnel for a Goal for your website.',
-    'Funnels_AddNewFunnel' => 'Add a new Goal Funnel',	
+  'Funnels_AddNewFunnel' => 'Add a new Goal Funnel',	
 	'Funnels_AddNewFunnelLink' => 'Add a new Goal Funnel',
 	'Funnels_Funnel' => 'Funnel',
 	'Funnels_FunnelsManagement' => 'Funnels Management',
@@ -30,5 +30,7 @@ $translations = array(
 	'Funnels_DeleteFunnelConfirm_js' => 'Are you sure you want to delete the Funnel for %s?',
 	'Funnels_Step' => 'Step', 
 	'Funnels_StepUrl' => 'URL(e.g. "/step1.html")',
-	'Funnels_StepName' => 'Name'
+	'Funnels_StepName' => 'Name',
+	'Funnels_FunnelConversionRate' => 'funnel conversion rate',
+	'Funnels_ContinuedToNextStep' => 'continued to next step'
 );

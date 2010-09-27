@@ -30,7 +30,7 @@
 					</div>
 				</div>
 				<h4>
-					{$step.nb_next_step_actions} ({$step.percent_next_step_actions}%) <span class="label">continued to next step</span>
+					{$step.nb_next_step_actions} ({$step.percent_next_step_actions}%) <span class="label">{'Funnels_ContinuedToNextStep'|translate}</span>
 				</h4>
 			</td>
 			<td class="exit">
@@ -60,7 +60,7 @@
 								<span class="label">{$name}</span> {$goal_conversions}
 							</h3>
 							<p>
-								{$conversion_rate}% funnel conversion rate
+								{$conversion_rate}% {'Funnels_FunnelConversionRate'|translate}
 							</p>
 						</div>
 					</div>

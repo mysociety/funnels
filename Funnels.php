@@ -142,7 +142,7 @@ class Piwik_Funnels extends Piwik_Plugin
 		$goalsWithoutFunnels = Piwik_Funnels_API::getInstance()->getGoalsWithoutFunnels($idSite);
 		if(count($funnels) == 0 && count($goalsWithoutFunnels) > 0)
 		{	
-			Piwik_AddMenu('Funnels', 'Add a new Funnel', array('module' => 'Funnels', 'action' => 'addNewFunnel'));
+			Piwik_AddMenu('Funnels', Piwik_Translate('Funnels_AddNewFunnel') , array('module' => 'Funnels', 'action' => 'addNewFunnel'));
 		} else {
 			Piwik_AddMenu('Funnels_Funnels', 'Funnels_Overview', array('module' => 'Funnels'));	
 			foreach($funnels as $funnel) 
