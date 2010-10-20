@@ -5,7 +5,7 @@
  * 
  * @link http://mysociety.org
  * @license http://www.gnu.org/licenses/agpl-3.0.html
- * @version 0.1
+ * @version 0.2
  * 
  * @category Piwik_Plugins
  * @package Piwik_Funnels
@@ -404,7 +404,7 @@ class Piwik_Funnels extends Piwik_Plugin
                     	  `idgoal` int(11) NOT NULL,
                     	  `idfunnel` int(11) NOT NULL, 
                     	  `idstep` int(11) NOT NULL, 
-                    	  PRIMARY KEY  (`idvisit`, `idstep`),
+                    	  PRIMARY KEY  (`idvisit`, `idfunnel`, `idstep`),
                     	  INDEX index_idsite_datetime ( idsite, server_time ), 
 						  INDEX index_idsite_idvisit_idaction_url_idaction_url_next 
 						    (idsite, idvisit, idaction_url, idaction_url_next), 

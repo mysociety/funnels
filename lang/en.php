@@ -5,7 +5,7 @@
  * 
  * @link http://mysociety.org
  * @license http://www.gnu.org/licenses/agpl-3.0.html
- * @version 0.1
+ * @version 0.2
  * 
  * @category Piwik_Plugins
  * @package Piwik_Funnels
@@ -29,7 +29,7 @@ $translations = array(
 	'Funnels_UpdateFunnel_js' => 'Update Funnel',
 	'Funnels_DeleteFunnelConfirm_js' => 'Are you sure you want to delete the Funnel for %s?',
 	'Funnels_Step' => 'Step', 
-	'Funnels_StepUrl' => 'URL(e.g. "/step1.html")',
+	'Funnels_StepUrl' => 'URL(e.g. "http://www.example.com/step1.html")',
 	'Funnels_StepName' => 'Name',
 	'Funnels_FunnelConversionRate' => 'funnel conversion rate',
 	'Funnels_ContinuedToNextStep' => 'continued to next step'
