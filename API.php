@@ -25,6 +25,7 @@ class Piwik_Funnels_API
 	
 	public function getFunnels( $idSite )
 	{
+	  Piwik::checkUserHasViewAccess($idSite);
 		$funnel_table = Piwik_Common::prefixTable('funnel');
 		$goal_table = Piwik_Common::prefixTable('goal');
 		$funnel_step_table = Piwik_Common::prefixTable('funnel_step');
@@ -49,6 +50,7 @@ class Piwik_Funnels_API
 	
 	public function getFunnelsByGoal( $idSite )
 	{
+	  Piwik::checkUserHasViewAccess($idSite);
 		$funnelsByGoal = array();
 		$funnels = $this->getFunnels( $idSite );
 		foreach($funnels as &$funnel)
@@ -60,6 +62,7 @@ class Piwik_Funnels_API
 	
 	public function getGoalsWithoutFunnels( $idSite )
 	{
+	  Piwik::checkUserHasViewAccess($idSite);
 		$goals = Piwik_Goals_API::getInstance()->getGoals( $idSite );
 		$funnelsByGoal = $this->getFunnelsByGoal( $idSite );
 		$goalsWithoutFunnels = array();
