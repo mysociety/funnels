@@ -45,6 +45,7 @@ class Piwik_Funnels extends Piwik_Plugin
 			'AssetManager.getCssFiles' => 'getCssFiles',
 			'AssetManager.getJsFiles' => 'getJsFiles',
 			'Menu.add' => 'addMenus',
+			'Common.fetchWebsiteAttributes' => 'fetchFunnelsFromDb',
 			'Tracker.Action.record' => 'recordFunnelSteps',
 			'ArchiveProcessing_Day.compute' => 'archiveDay',
 			'ArchiveProcessing_Period.compute' => 'archivePeriod',
@@ -65,72 +66,87 @@ class Piwik_Funnels extends Piwik_Plugin
 		$cssFiles[] = "plugins/Funnels/templates/funnels.css";
 	}
 	
+	function fetchFunnelsFromDb($notification)
+	{
+		$idsite = $notification->getNotificationInfo();
+
+		// add the 'funnel' entry in the website array
+		$array =& $notification->getNotificationObject();
+		$array['funnels'] = Piwik_Funnels_API::getInstance()->getFunnels($idsite);
+	}
 	
 	function recordFunnelSteps( $notification )
 	{
 		$info = $notification->getNotificationInfo();
 		$idSite = $info['idSite'];
 		printDebug('Looking for funnel steps');
-		$funnels = Piwik_Funnels_API::getInstance()->getFunnels($idSite);
-		
-		if (count($funnels) > 0)
+		$websiteAttributes = Piwik_Common::getCacheWebsiteAttributes( $idSite );
+		if(isset($websiteAttributes['funnels']))
 		{
-			$idVisit = $info['idVisit'];
-			$idLinkVisitAction = $info['idLinkVisitAction'];
-			$idRefererAction = $info['idRefererAction'];
-			$action = $notification->getNotificationObject();
-			$actionName = $action->getActionName();
-			$sanitizedUrl = $action->getActionUrl();
-			$actionUrl = htmlspecialchars_decode($sanitizedUrl);
-			$idActionUrl = $action->getIdActionUrl();
-
-			$url = Piwik_Common::getRequestVar( 'url', '', 'string', $action->getRequest());
-			
-			printDebug("idActionUrl" . $idActionUrl . " idSite " . $idSite . " idVisit " . $idVisit . " idRefererAction " . $idRefererAction);
-			# Is this the next action for a recorded funnel step? 
-			$previous_step_action = Piwik_Query("UPDATE ".Piwik_Common::prefixTable('log_funnel_step')."
-													SET   idaction_url_next = ?
-													WHERE idsite = ? 
-													AND   idvisit = ? 
-													AND   idaction_url = ?
-													AND   idaction_url_next is null", 
-													array($idActionUrl, $idSite, $idVisit, $idRefererAction));
-		}
-		foreach($funnels as &$funnel)
-		{
-			$steps = $funnel['steps'];
-		
-			foreach($steps as &$step) 
-			{				
-				if ($step['url'] == $actionUrl or $step['name'] == $actionName) 
-				{
-					printDebug("Matched Goal Funnel " . $funnel['idfunnel'] . " Step " . $step['idstep'] . "(name: " . $step['name'] . ", url: " . $step['url']. "). ");
-					$serverTime = time();
-					$datetimeServer = Piwik_Tracker::getDatetimeFromTimestamp($serverTime);
-				
-					// Look to see if this step has already been recorded for this visit 
-					$exists = Piwik_FetchOne("SELECT idlink_va
-											  FROM ".Piwik_Common::prefixTable('log_funnel_step')." 
-											  WHERE idsite = ? 
-											  AND   idfunnel = ?
-											  AND   idstep = ?
-											  AND   idvisit = ?", 
-											  array($idSite, $funnel['idfunnel'], $step['idstep'], $idVisit));
-				
-					// Record it if not
-					if (!$exists){						
-						printDebug("Recording...");
-						Piwik_Query("INSERT INTO " . Piwik_Common::prefixTable('log_funnel_step') . "
-									(idvisit, idsite, idaction_url, url, 
-									 idgoal, idfunnel, idstep, idlink_va, 
-									 idaction_url_ref, server_time)
-									VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-									array($idVisit, $idSite, $idActionUrl, $url, 
-										  $funnel['idgoal'], $step['idfunnel'],$step['idstep'], $idLinkVisitAction, 
-										  $idRefererAction, $datetimeServer));
-					}
-				}
-			}
+			$funnels = $websiteAttributes['funnels'];
+			printDebug('got funnel steps');
+		} else {
+		    $funnels = array();
+	    }
+	    
+        if (count($funnels) > 0)
+        {
+         $idVisit = $info['idVisit'];
+         $idLinkVisitAction = $info['idLinkVisitAction'];
+         $idRefererAction = $info['idRefererAction'];
+         $action = $notification->getNotificationObject();
+         $actionName = $action->getActionName();
+         $sanitizedUrl = $action->getActionUrl();
+         $actionUrl = htmlspecialchars_decode($sanitizedUrl);
+         $idActionUrl = $action->getIdActionUrl();
+        
+         $url = Piwik_Common::getRequestVar( 'url', '', 'string', $action->getRequest());
+         
+         printDebug("idActionUrl" . $idActionUrl . " idSite " . $idSite . " idVisit " . $idVisit . " idRefererAction " . $idRefererAction);
+         # Is this the next action for a recorded funnel step? 
+         $previous_step_action = Piwik_Query("UPDATE ".Piwik_Common::prefixTable('log_funnel_step')."
+                                                 SET   idaction_url_next = ?
+                                                 WHERE idsite = ? 
+                                                 AND   idvisit = ? 
+                                                 AND   idaction_url = ?
+                                                 AND   idaction_url_next is null", 
+                                                 array($idActionUrl, $idSite, $idVisit, $idRefererAction));
+        }
+        foreach($funnels as &$funnel)
+        {
+         $steps = $funnel['steps'];
+        
+         foreach($steps as &$step) 
+         {               
+             if ($step['url'] == $actionUrl or $step['name'] == $actionName) 
+             {
+                 printDebug("Matched Goal Funnel " . $funnel['idfunnel'] . " Step " . $step['idstep'] . "(name: " . $step['name'] . ", url: " . $step['url']. "). ");
+                 $serverTime = time();
+                 $datetimeServer = Piwik_Tracker::getDatetimeFromTimestamp($serverTime);
+             
+                 // Look to see if this step has already been recorded for this visit 
+                 $exists = Piwik_FetchOne("SELECT idlink_va
+                                           FROM ".Piwik_Common::prefixTable('log_funnel_step')." 
+                                           WHERE idsite = ? 
+                                           AND   idfunnel = ?
+                                           AND   idstep = ?
+                                           AND   idvisit = ?", 
+                                           array($idSite, $funnel['idfunnel'], $step['idstep'], $idVisit));
+             
+                 // Record it if not
+                 if (!$exists){                      
+                     printDebug("Recording...");
+                     Piwik_Query("INSERT INTO " . Piwik_Common::prefixTable('log_funnel_step') . "
+                                 (idvisit, idsite, idaction_url, url, 
+                                  idgoal, idfunnel, idstep, idlink_va, 
+                                  idaction_url_ref, server_time)
+                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                 array($idVisit, $idSite, $idActionUrl, $url, 
+                                       $funnel['idgoal'], $step['idfunnel'],$step['idstep'], $idLinkVisitAction, 
+                                       $idRefererAction, $datetimeServer));
+                 }
+             }
+         }
 		}
 	}
 

@@ -25,7 +25,7 @@ class Piwik_Funnels_API
 	
 	public function getFunnels( $idSite )
 	{
-    // Piwik::checkUserHasViewAccess($idSite);
+		Piwik::checkUserHasViewAccess($idSite);
 		$funnel_table = Piwik_Common::prefixTable('funnel');
 		$goal_table = Piwik_Common::prefixTable('goal');
 		$funnel_step_table = Piwik_Common::prefixTable('funnel_step');
