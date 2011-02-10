@@ -55,7 +55,13 @@
 	border-top:1px solid #E7E7E7!important;
 }
 
+.tableFormFunnels tr td span.cellHeader{
+  font-weight: bold;
+}
 
+.funnelInlineHelp {
+	color:#9B9B9B;
+}
 
 /* Funnel visualization */
 .funnel {

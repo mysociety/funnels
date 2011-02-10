@@ -7,7 +7,8 @@
 	<tbody>
 		<tr>
 			<td></td>
-            <td>{'Funnels_FunnelGoal'|translate} </td>
+      <td><span class="cellHeader">{'Funnels_FunnelGoal'|translate}</span>
+          <div class="funnelInlineHelp">{'Funnels_FunnelGoalHelp'|translate}</div></td>
 			<td>
 				<select name="goal_id" class="inp">
 					{foreach from=$goalsWithoutFunnels item=goal}
@@ -18,12 +19,22 @@
 				</span>
 			</td>
 		</tr>
-	</tbody>
-	<tbody>
+		<tr>
+		  <td></td>
+		  <td colspan="2">
+		    {'Funnels_StepHelp'|translate}
+		  </td>
+		</tr>
 		<tr>
 			<td></td>
-			<td style="font-weight:bold">{'Funnels_StepUrl'|translate} </td>
-			<td style="font-weight:bold">{'Funnels_StepName'|translate}</td>
+			<td>
+			  <span class="cellHeader">{'Funnels_StepUrl'|translate}</span>
+			  <div class="funnelInlineHelp">{'Funnels_StepUrlHelp'|translate}</div>
+			</td>
+			<td>
+			  <span class="cellHeader">{'Funnels_StepName'|translate}</span>
+				<div class="funnelInlineHelp">{'Funnels_StepNameHelp'|translate}</div>
+			</td>
 		</tr>
 		{section name=funnel_step start=1 loop=11 step=1}
 			<tr>
