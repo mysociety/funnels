@@ -25,15 +25,16 @@ class Piwik_Funnels_API
 	
 	public function getFunnels( $idSite )
 	{
-	  Piwik::checkUserHasViewAccess($idSite);
+    // Piwik::checkUserHasViewAccess($idSite);
 		$funnel_table = Piwik_Common::prefixTable('funnel');
 		$goal_table = Piwik_Common::prefixTable('goal');
 		$funnel_step_table = Piwik_Common::prefixTable('funnel_step');
 		$funnels = Piwik_FetchAll("SELECT ".$funnel_table.".*, ".$goal_table.".name as goal_name, ".$goal_table.".idgoal
 								   FROM   ".$funnel_table.", ".$goal_table." 
 								   WHERE  ".$funnel_table.".idsite = ?
+								   AND    ".$goal_table.".idsite = ?
 								   AND    ".$funnel_table.".idgoal = ".$goal_table.".idgoal
-								   AND    ".$funnel_table.".deleted = 0", array($idSite));
+								   AND    ".$funnel_table.".deleted = 0", array($idSite, $idSite));
 		$funnelsById = array();
 		foreach($funnels as &$funnel)
 		{
